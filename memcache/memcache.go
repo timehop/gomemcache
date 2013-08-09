@@ -69,7 +69,7 @@ const DefaultTimeout = time.Duration(100) * time.Millisecond
 
 const (
 	buffered            = 8 // arbitrary buffered channel size, for readability
-	maxIdleConnsPerAddr = 2 // TODO(bradfitz): make this configurable?
+	maxIdleConnsPerAddr = 2
 )
 
 // resumableError returns true if err is only a protocol-level cache error.
@@ -121,7 +121,7 @@ func New(server ...string) *Client {
 
 // NewFromSelector returns a new Client using the provided ServerSelector.
 func NewFromSelector(ss ServerSelector) *Client {
-	return &Client{selector: ss}
+	return &Client{MaxIdleConns: maxIdleConnsPerAddr, selector: ss}
 }
 
 // Client is a memcache client.
@@ -129,7 +129,8 @@ func NewFromSelector(ss ServerSelector) *Client {
 type Client struct {
 	// Timeout specifies the socket read/write timeout.
 	// If zero, DefaultTimeout is used.
-	Timeout time.Duration
+	Timeout      time.Duration
+	MaxIdleConns int
 
 	selector ServerSelector
 
@@ -197,7 +198,7 @@ func (c *Client) putFreeConn(addr net.Addr, cn *conn) {
 		c.freeconn = make(map[net.Addr][]*conn)
 	}
 	freelist := c.freeconn[addr]
-	if len(freelist) >= maxIdleConnsPerAddr {
+	if len(freelist) >= c.MaxIdleConns {
 		cn.nc.Close()
 		return
 	}
