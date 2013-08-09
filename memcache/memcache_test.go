@@ -63,7 +63,7 @@ func TestUnixSocket(t *testing.T) {
 		if _, err := os.Stat(sock); err == nil {
 			break
 		}
-		time.Sleep(time.Duration(25 * i) * time.Millisecond)
+		time.Sleep(time.Duration(25*i) * time.Millisecond)
 	}
 
 	testWithClient(t, New(sock))
@@ -136,7 +136,7 @@ func testWithClient(t *testing.T, c *Client) {
 	if err != ErrCacheMiss {
 		t.Errorf("post-Delete want ErrCacheMiss, got %v", err)
 	}
-	
+
 	// Test Delete All
 	err = c.DeleteAll()
 	checkErr(err, "DeleteAll: %v", err)
@@ -144,7 +144,7 @@ func testWithClient(t *testing.T, c *Client) {
 	if err != ErrCacheMiss {
 		t.Errorf("post-DeleteAll want ErrCacheMiss, got %v", err)
 	}
-	
+
 	// Incr/Decr
 	mustSet(&Item{Key: "num", Value: []byte("42")})
 	n, err := c.Increment("num", 8)
@@ -168,5 +168,5 @@ func testWithClient(t *testing.T, c *Client) {
 	if err == nil || !strings.Contains(err.Error(), "client error") {
 		t.Fatalf("increment non-number: want client error, got %v", err)
 	}
-	
+
 }
